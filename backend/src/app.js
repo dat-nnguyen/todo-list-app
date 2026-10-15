@@ -15,9 +15,9 @@ app.use(cors({
   credentials: true
 }));
 
-
 app.get('/api/v1/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
 
 export default app;
