@@ -8,7 +8,6 @@ A full-stack todo list application with authentication, session-based auth, and 
 - React (JavaScript)
 - Vite
 - TanStack Query (React Query)
-- Axios
 
 ### Backend
 - Node.js
@@ -59,6 +58,3 @@ todo-app/
 └── README.md                 # Project documentation
 ```
 
-## Getting Started (Coming Soon)
-
-Instructions for running the project locally will be added as development progresses.
