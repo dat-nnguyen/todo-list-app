@@ -8,7 +8,6 @@ A full-stack todo list application with authentication, session-based auth, and 
 - React (JavaScript)
 - Vite
 - TanStack Query (React Query)
-- Axios
 
 ### Backend
 - Node.js
