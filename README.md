@@ -57,4 +57,3 @@ todo-app/
 ├── compose.yaml              # Docker Compose configuration
 └── README.md                 # Project documentation
 ```
-
