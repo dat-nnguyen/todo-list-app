@@ -21,6 +21,7 @@ export const config = {
 };
 
 export function getDatabaseUrl() {
-  const { host, port, user, password, name } = config.db;
-  return `postgresql://${user}:${password}@${host}:${port}/${name}`;
+  return (process.env.DATABASE_URL)
+    ? process.env.DATABASE_URL
+    : `postgresql://${config.db.user}:${config.db.password}@${config.db.host}:${config.db.port}/${config.db.name}`;
 }

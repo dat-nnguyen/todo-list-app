@@ -7,9 +7,9 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
-    "db:create": "node-pg-migrate create",
-    "db:up": "node-pg-migrate up",
-    "db:down": "node-pg-migrate down",
+    "db:create": "node --env-file=.env node_modules/.bin/node-pg-migrate create",
+    "db:up": "node --env-file=.env node_modules/.bin/node-pg-migrate up",
+    "db:down": "node --env-file=.env node_modules/.bin/node-pg-migrate down",
     "db:reset": "npm run db:down && npm run db:up"
   },
   "repository": {
