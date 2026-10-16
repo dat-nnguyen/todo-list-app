@@ -57,7 +57,3 @@ todo-app/
 ├── compose.yaml              # Docker Compose configuration
 └── README.md                 # Project documentation
 ```
-
-## Getting Started (Coming Soon)
-
-Instructions for running the project locally will be added as development progresses.
