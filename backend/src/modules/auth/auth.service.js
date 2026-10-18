@@ -41,14 +41,11 @@ export async function login(email, password) {
         throw error;
     }
 
-    return {
-        id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-    }
+    // this row comes from findByEmailWithPassword, so it still carries
+    // password_hash -> strip it here instead of trusting callers to filter
+    delete user.password_hash;
+
+    return user;
 }
 
 export async function getMe(userId) {
@@ -61,12 +58,5 @@ export async function getMe(userId) {
         throw error;
     }
 
-    return {
-        id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-    };
+    return user;
 }
