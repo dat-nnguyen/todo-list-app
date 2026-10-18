@@ -10,6 +10,7 @@ export async function register({ first_name, last_name, email, password }) {
     if (existingUser) {
         const error = new Error('Email already exists');
         error.statusCode = 409;
+        error.code = 'EMAIL_ALREADY_EXISTS';
         throw error;
     }
 
@@ -24,14 +25,19 @@ export async function login(email, password) {
     const user = await findByEmailWithPassword(email);
 
     if (!user) {
-        throw new Error('User not found');
+        const error = new Error('Invalid email or password');
+        error.statusCode = 401;
+        error.code = 'INVALID_CREDENTIALS';
+        throw error;
     }
+
 
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
         const error = new Error('Invalid email or password');
         error.statusCode = 401;
+        error.code = 'INVALID_CREDENTIALS';
         throw error;
     }
 
@@ -51,6 +57,7 @@ export async function getMe(userId) {
     if (!user) {
         const error = new Error('Unauthorized');
         error.statusCode = 401;
+        error.code = 'UNAUTHORIZED';
         throw error;
     }
 
@@ -62,15 +69,4 @@ export async function getMe(userId) {
         created_at: user.created_at,
         updated_at: user.updated_at,
     };
-}
-
-export async function logout(req) {
-    return new Promise((resolve, reject) => {
-        req.session.destroy((err) => {
-            if (err) {
-                return reject(err);
-            }
-            return resolve();
-        });
-    });
 }
