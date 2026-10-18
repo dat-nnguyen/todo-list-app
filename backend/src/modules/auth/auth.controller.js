@@ -7,28 +7,40 @@ export async function register(req, res, next) {
     } catch (error) {
         next(error);
     }
+
+    //auto login after register
 }
 
 export async function login(req, res, next) {
     try {
         const { email, password } = req.body;
         const user = await authService.login(email, password);
-        req.session.userId = user.id;
-        res.status(200).json({ user: toUserResponse(user) });
+
+        req.session.regenerate((err) => {
+            if (err) return next(err);
+
+            req.session.userId = user.id;
+            res.status(200).json({ user: toUserResponse(user) });
+        })
+
     } catch (error) {
         next(error);
     }
 }
 
+
 export async function logout(req, res, next) {
-    try {
-        await authService.logout(req);
-        res.clearCookie('connect.sid', { path: '/' });
-        res.status(204).send();
-    } catch (error) {
-        next(error);
-    }
+  try {
+    req.session.destroy((err) => {
+      if (err) return next(err);
+      res.clearCookie('connect.sid');
+      res.status(204).send();
+    });
+  } catch (error) {
+    next(error);
+  }
 }
+
 
 export async function me(req, res, next) {
     try {
