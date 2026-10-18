@@ -11,7 +11,7 @@ export function validateBody(schema) {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request body',
-            details: error.errors.map((e) => ({
+            details: error.issues.map((e) => ({
               field: e.path.join('.'),
               message: e.message,
             })),
