@@ -9,14 +9,19 @@ const pool = new Pool({
 });
 
 export async function connect() {
-    try {
-        await pool.connect();
-        console.log('Database connected');
-    } catch (error) {
-        console.error('Database connection error:', error);
-        process.exit(1);
-    }
+  let client;
+  try {
+    client = await pool.connect();
+    await client.query('SELECT 1');
+    console.log('Database connected');
+  } catch (error) {
+    console.error('Database connection error:', error);
+    process.exit(1);
+  } finally {
+    client?.release();
+  }
 }
+
 
 export async function query(text, params) {
     return pool.query(text, params);
