@@ -15,13 +15,14 @@ const app = express();
 
 // security & parse JSON body 
 app.use(helmet());
-app.use(express.json());
 
 // CORS
 app.use(cors({
   origin: config.clientUrl,
   credentials: true,
 }));
+
+app.use(express.json());
 
 // session
 app.use(session({
@@ -44,6 +45,16 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRoutes);
+
+// 404 JSON
+app.use((req, res) => {
+  res.status(404).json({
+    error: {
+      code: 'NOT_FOUND',
+      message: `Cannot ${req.method} ${req.path}`,
+    }
+  })
+})
 
 //erros handler
 app.use(errorHandler);
