@@ -33,12 +33,12 @@ export const up = (pgm) => {
             notNull: true,
         },
         created_at: {
-            type: 'timestamp', 
+            type: 'timestamptz', 
             notNull: true,
             default: pgm.func('now()'),
         },
         updated_at: {
-            type: 'timestamp',
+            type: 'timestamptz',
             notNull: true,
             default: pgm.func('now()'),
         },
@@ -72,19 +72,21 @@ export const up = (pgm) => {
             default: false,
         },
         created_at: {
-            type: 'timestamp',
+            type: 'timestamptz',
             notNull: true,
             default: pgm.func('now()'),
         },
         updated_at: {
-            type: 'timestamp',
+            type: 'timestamptz',
             notNull: true,
             default: pgm.func('now()'),
         },
     });
-    pgm.createIndex('todos', ['user_id', 'created_at', 'id'], {
-        order: { created_at: 'DESC', id: 'DESC' }
-    });
+    pgm.createIndex('todos', [
+        { name: 'user_id' },
+        { name: 'created_at', sort: 'DESC' },
+        { name: 'id', sort: 'DESC' },
+    ]);
 
     pgm.createTable('session', {
         sid: {
@@ -96,7 +98,7 @@ export const up = (pgm) => {
             notNull: true,
         },
         expire: {
-            type: 'timestamp(6)', 
+            type: 'timestamptz(6)', 
             notNull: true,
         },
     });
