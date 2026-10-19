@@ -8,17 +8,26 @@ export async function register({ first_name, last_name, email, password }) {
     const existingUser = await findByEmailWithPassword(email);
 
     if (existingUser) {
-        const error = new Error('Email already exists');
-        error.statusCode = 409;
-        error.code = 'EMAIL_ALREADY_EXISTS';
-        throw error;
+        throw emailAlreadyExists();
     }
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    
-    const user = await createUser({ first_name, last_name, email, passwordHash });
 
-    return user;
+    try {
+        return await createUser({ first_name, last_name, email, passwordHash });
+    } catch (error) {
+        if (error.code === '23505') {
+            throw emailAlreadyExists();
+        }
+        throw error;
+    }
+}
+
+function emailAlreadyExists() {
+    const error = new Error('Email already exists');
+    error.statusCode = 409;
+    error.code = 'EMAIL_ALREADY_EXISTS';
+    return error;
 }
 
 export async function login(email, password) {
