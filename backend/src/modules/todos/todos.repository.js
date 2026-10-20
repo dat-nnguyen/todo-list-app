@@ -1,11 +1,11 @@
 import { query } from "../../db/index.js";
 
-export async function createTodo({ userId, title, description }) {
+export async function createTodo({ userId, title, description, status }) {
     const result = await query(
-        `INSERT INTO todos (user_id, title, description)
-        VALUES($1, $2, $3)
+        `INSERT INTO todos (user_id, title, description, status)
+        VALUES($1, $2, $3, $4)
         RETURNING id, user_id, title, description, status, created_at, updated_at`,
-        [userId, title, description]
+        [userId, title, description, status]
     );
     return result.rows[0] || null;
 }
