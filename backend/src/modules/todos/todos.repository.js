@@ -4,7 +4,7 @@ export async function createTodo({ userId, title, description }) {
     const result = await query(
         `INSERT INTO todos (user_id, title, description)
         VALUES($1, $2, $3)
-        RETURNING id, user_id, title, description, completed, created_at, updated_at`,
+        RETURNING id, user_id, title, description, status, created_at, updated_at`,
         [userId, title, description]
     );
     return result.rows[0] || null;
@@ -12,7 +12,7 @@ export async function createTodo({ userId, title, description }) {
 
 export async function findByIdAndUserId({ id, userId }) {
     const result = await query(
-        `SELECT id, user_id, title, description, completed, created_at, updated_at
+        `SELECT id, user_id, title, description, status, created_at, updated_at
         FROM todos WHERE id = $1 AND user_id = $2`,
         [id, userId]
     );
@@ -31,7 +31,7 @@ export async function listByUserId({ userId, limit, cursor }) {
     values.push(limit);
 
     const result = await query(
-        `SELECT id, user_id, title, description, completed, created_at, updated_at
+        `SELECT id, user_id, title, description, status, created_at, updated_at
         FROM todos
         ${where}
         ORDER BY created_at DESC, id DESC
@@ -44,7 +44,7 @@ export async function listByUserId({ userId, limit, cursor }) {
 
 
 export async function updateTodo({ id, userId, updates }) {
-    const ALLOWED = ['title', 'description', 'completed'];
+    const ALLOWED = ['title', 'description', 'status'];
     const sets = [];
     const values = [];
 
@@ -65,11 +65,11 @@ export async function updateTodo({ id, userId, updates }) {
         `UPDATE todos
         SET ${sets.join(', ')}, updated_at = NOW()
         WHERE id = $${values.length - 1} AND user_id = $${values.length}
-        RETURNING id, user_id, title, description, completed, created_at, updated_at`,
+        RETURNING id, user_id, title, description, status, created_at, updated_at`,
         values
     );
 
-    return result.rows[0] ?? null;
+    return result.rows[0] || null;
 }
 
 
@@ -80,5 +80,5 @@ export async function deleteTodo({ id, userId }) {
         RETURNING id`,
         [id, userId]
     );
-    return result.rows[0] ?? null;
+    return result.rows[0] || null;
 }
