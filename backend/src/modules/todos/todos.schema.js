@@ -1,4 +1,9 @@
 import { z } from 'zod';
+const TODO_STATUS = {
+    PENDING: 'pending',
+    IN_PROGRESS: 'in_progress',
+    COMPLETED: 'completed',
+}
 
 export const createTodoSchema = z.object({
     title: z
@@ -12,6 +17,10 @@ export const createTodoSchema = z.object({
         .max(2000, { message: 'Description must be at most 2000 characters long' })
         .optional()
         .nullable(),
+    status: z
+        .enum([TODO_STATUS.PENDING, TODO_STATUS.IN_PROGRESS, TODO_STATUS.COMPLETED])
+        .optional()
+        .default(TODO_STATUS.PENDING),
 });
 
 export const updateTodoSchema = z
@@ -30,13 +39,15 @@ export const updateTodoSchema = z
             .optional()
             .nullable(),
 
-        completed: z.boolean().optional(),
+        status: z
+            .enum([TODO_STATUS.PENDING, TODO_STATUS.IN_PROGRESS, TODO_STATUS.COMPLETED])
+            .optional(),
     })
     .refine(
         (data) =>
             data.title !== undefined ||
             data.description !== undefined ||
-            data.completed !== undefined,
+            data.status !== undefined,
         { message: 'At least one field is required', path: ['_root'] }
     );
 
