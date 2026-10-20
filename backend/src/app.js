@@ -7,6 +7,7 @@ import { config } from './config/index.js';
 import connectPgSimple from 'connect-pg-simple';
 import pool from './db/index.js';
 import authRoutes from './modules/auth/auth.route.js';
+import todosRoutes from './modules/todos/todos.route.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const PgStore = connectPgSimple(session);
@@ -45,6 +46,7 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/todos', todosRoutes);
 
 // 404 JSON
 app.use((req, res) => {
