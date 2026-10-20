@@ -5,12 +5,6 @@ const SALT_ROUNDS = 10;
 
 
 export async function register({ first_name, last_name, email, password }) {
-    const existingUser = await findByEmailWithPassword(email);
-
-    if (existingUser) {
-        throw emailAlreadyExists();
-    }
-
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     try {
@@ -50,8 +44,6 @@ export async function login(email, password) {
         throw error;
     }
 
-    // this row comes from findByEmailWithPassword, so it still carries
-    // password_hash -> strip it here instead of trusting callers to filter
     delete user.password_hash;
 
     return user;

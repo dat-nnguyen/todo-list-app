@@ -25,5 +25,5 @@ export async function createUser({ first_name, last_name, email, passwordHash })
      RETURNING id, first_name, last_name, email, created_at, updated_at`,
     [first_name, last_name, email, passwordHash]
   );
-  return result.rows[0];
+  return result.rows[0] || null;
 }
