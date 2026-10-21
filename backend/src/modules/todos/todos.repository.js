@@ -1,18 +1,18 @@
 import { query } from "../../db/index.js";
 
-export async function createTodo({ userId, title, description, status }) {
+export async function createTodo({ userId, title, description, status, dueDate }) {
     const result = await query(
-        `INSERT INTO todos (user_id, title, description, status)
-        VALUES($1, $2, $3, $4)
-        RETURNING id, user_id, title, description, status, created_at, updated_at`,
-        [userId, title, description, status]
+        `INSERT INTO todos (user_id, title, description, status, due_date)
+        VALUES($1, $2, $3, $4, $5)
+        RETURNING id, user_id, title, description, status, due_date, created_at, updated_at`,
+        [userId, title, description, status, dueDate ?? null]
     );
     return result.rows[0] || null;
 }
 
 export async function findByIdAndUserId({ id, userId }) {
     const result = await query(
-        `SELECT id, user_id, title, description, status, created_at, updated_at
+        `SELECT id, user_id, title, description, status, due_date, created_at, updated_at
         FROM todos WHERE id = $1 AND user_id = $2`,
         [id, userId]
     );
@@ -31,7 +31,7 @@ export async function listByUserId({ userId, limit, cursor }) {
     values.push(limit);
 
     const result = await query(
-        `SELECT id, user_id, title, description, status, created_at, updated_at
+        `SELECT id, user_id, title, description, status, due_date, created_at, updated_at
         FROM todos
         ${where}
         ORDER BY created_at DESC, id DESC
@@ -41,17 +41,20 @@ export async function listByUserId({ userId, limit, cursor }) {
 
     return result.rows;
 }
-
-
 export async function updateTodo({ id, userId, updates }) {
-    const ALLOWED = ['title', 'description', 'status'];
+    const allowedColumns = {
+        title: 'title',
+        description: 'description',
+        status: 'status',
+        dueDate: 'due_date',
+    };
     const sets = [];
     const values = [];
 
-    for (const key of ALLOWED) {
-        if (updates[key] !== undefined) {
-            values.push(updates[key]);
-            sets.push(`${key} = $${values.length}`);
+    for (const [field, column] of Object.entries(allowedColumns)) {
+        if (updates[field] !== undefined) {
+            values.push(updates[field]);
+            sets.push(`${column} = $${values.length}`);
         }
     }
 
@@ -65,13 +68,12 @@ export async function updateTodo({ id, userId, updates }) {
         `UPDATE todos
         SET ${sets.join(', ')}, updated_at = NOW()
         WHERE id = $${values.length - 1} AND user_id = $${values.length}
-        RETURNING id, user_id, title, description, status, created_at, updated_at`,
+        RETURNING id, user_id, title, description, status, due_date, created_at, updated_at`,
         values
     );
 
     return result.rows[0] || null;
 }
-
 
 export async function deleteTodo({ id, userId }) {
     const result = await query(

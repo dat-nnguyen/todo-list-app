@@ -10,7 +10,8 @@ export async function createTodoController(req, res, next) {
             userId: req.session.userId,
             title: req.body.title,
             description: req.body.description,
-            status: req.body.status
+            status: req.body.status,
+            dueDate: req.body.dueDate,
         });
 
         res.status(201).json({ todo: toTodoResponse(result) });
@@ -89,9 +90,10 @@ function toTodoResponse(todo) {
         title: todo.title,
         description: todo.description,
         status: todo.status,
+        dueDate: todo.due_date,
         createdAt: todo.created_at,
         updatedAt: todo.updated_at,
-    }
+    };
 }
 
 function encodeCursor(todo) {
