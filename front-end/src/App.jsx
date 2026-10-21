@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import TodosPage from './pages/TodosPage.jsx'
-
+import ForgotPassWord from './pages/ForgotPasswordPage.jsx'
 function App() {
   return (
     <Routes>
@@ -10,6 +10,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/todos" element={<TodosPage />} />
+      <Route path="/forgot-password" element={<ForgotPassWord />} />
     </Routes>
   )
 }

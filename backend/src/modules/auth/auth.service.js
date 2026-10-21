@@ -61,3 +61,9 @@ export async function getMe(userId) {
 
     return user;
 }
+
+export async function requestPasswordReset(email) {
+    // Email delivery and verified reset tokens will be added in a later step.
+    // Never change a password based only on a submitted email address.
+    return { accepted: true, email };
+}
