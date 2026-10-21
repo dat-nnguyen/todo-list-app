@@ -27,3 +27,20 @@ export async function createUser({ first_name, last_name, email, passwordHash })
   );
   return result.rows[0] || null;
 }
+
+export async function findUserByEmail({ email }) {
+  const result = await query(
+    `SELECT id, first_name, last_name, email, created_at, updated_at
+     FROM users WHERE email = $1`,
+    [email]
+  );
+  return result.rows[0] || null;
+}
+
+export async function replaceNewPassword({ email, newPasswordHash }) {
+  const result = await query(
+    `UPDATE users SET password_hash = $1 WHERE email = $2 RETURNING id, first_name, last_name, email, created_at, updated_at`,
+    [newPasswordHash, email]
+  );
+  return result.rows[0] || null;
+}

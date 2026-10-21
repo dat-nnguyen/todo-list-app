@@ -24,3 +24,11 @@ export const loginSchema = z.object({
     .string({ error: 'Password is required' })
     .min(1, { message: 'Password is required' }),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string({ error: 'Email is required' })
+    .trim()
+    .toLowerCase()
+    .email({ message: 'Invalid email' }),
+});
