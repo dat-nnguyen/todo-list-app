@@ -13,8 +13,8 @@ function todoNotFoundError() {
     return error;
 }
 
-export async function createTodoService({ userId, title, description, status }) {
-    const todo = await createTodoRepository({ userId, title, description, status });
+export async function createTodoService({ userId, title, description, status, dueDate }) {
+    const todo = await createTodoRepository({ userId, title, description, status, dueDate });
 
     if (!todo) {
         const error = new Error('Failed to create todo');

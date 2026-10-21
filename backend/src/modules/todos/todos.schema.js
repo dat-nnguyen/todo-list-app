@@ -21,6 +21,7 @@ export const createTodoSchema = z.object({
         .enum([TODO_STATUS.PENDING, TODO_STATUS.IN_PROGRESS, TODO_STATUS.COMPLETED])
         .optional()
         .default(TODO_STATUS.PENDING),
+    dueDate: z.iso.date().nullable().optional(),
 });
 
 export const updateTodoSchema = z
@@ -42,12 +43,14 @@ export const updateTodoSchema = z
         status: z
             .enum([TODO_STATUS.PENDING, TODO_STATUS.IN_PROGRESS, TODO_STATUS.COMPLETED])
             .optional(),
+        dueDate: z.iso.date().nullable().optional(),
     })
     .refine(
         (data) =>
             data.title !== undefined ||
             data.description !== undefined ||
-            data.status !== undefined,
+            data.status !== undefined ||
+            data.dueDate !== undefined,
         { message: 'At least one field is required', path: ['_root'] }
     );
 
