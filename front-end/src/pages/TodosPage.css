@@ -152,7 +152,6 @@
 }
 
 .week-picker,
-.sidebar-navigation ul,
 .todo-list-card ul {
   margin: 0;
   padding: 0;
@@ -202,15 +201,6 @@
 
 .day-button.is-selected span {
   color: #c8c8c8;
-}
-
-.sidebar-navigation {
-  margin-top: 24px;
-}
-
-.sidebar-navigation ul {
-  display: grid;
-  gap: 7px;
 }
 
 .nav-item {
@@ -521,14 +511,6 @@
   .day-button {
     height: 46px;
     border-radius: 10px;
-  }
-
-  .sidebar-navigation {
-    margin-top: 0;
-  }
-
-  .sidebar-navigation ul {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .nav-item {

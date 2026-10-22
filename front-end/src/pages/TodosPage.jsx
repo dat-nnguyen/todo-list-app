@@ -63,29 +63,6 @@ function WeekPicker() {
     )
 }
 
-function SidebarNavigation() {
-    const links = [
-        { icon: '◉', label: 'Today', active: true },
-        { icon: '▦', label: 'Upcoming' },
-        { icon: '▱', label: 'My lists' },
-    ]
-
-    return (
-        <nav className="sidebar-navigation" aria-label="Task views">
-            <p className="section-eyebrow">Navigation</p>
-            <ul>
-                {links.map((link) => (
-                    <li key={link.label}>
-                        <button className={`nav-item${link.active ? ' is-active' : ''}`} type="button" aria-current={link.active ? 'page' : undefined}>
-                            <span aria-hidden="true">{link.icon}</span>{link.label}
-                        </button>
-                    </li>
-                ))}
-            </ul>
-        </nav>
-    )
-}
-
 function DayOverview() {
     return (
         <section className="day-overview">
@@ -144,19 +121,7 @@ function TodoItem({ todo }) {
 }
 
 export default function TodosPage() {
-    const todos = [
-        { id: 1, title: 'learn English', description: 'learn 100 vocabs', dueDate: '2026-10-22' },
-        { id: 2, title: 'learn Chinese', dueDate: '2026-10-24' },
-        { id: 3, title: 'learn Korean', dueDate: '2026-10-25' },
-        { id: 4, title: 'learn Japanese', dueDate: '2026-10-26' },
-        { id: 5, title: 'Finish project proposal', dueDate: '2026-10-27' },
-        { id: 6, title: 'Go for a run', dueDate: '2026-10-28' },
-        { id: 7, title: 'Read 20 pages', dueDate: '2026-10-29' },
-        { id: 8, title: 'Plan next week', dueDate: '2026-10-30' },
-        { id: 9, title: 'Call a friend', dueDate: '2026-10-31' },
-        { id: 10, title: 'Organize workspace', dueDate: '2026-11-01' },
-        { id: 11, title: 'Review notes', dueDate: '2026-11-02' },
-    ]
+    const todos = []
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 5
     const totalPages = Math.ceil(todos.length / pageSize)
@@ -169,7 +134,6 @@ export default function TodosPage() {
                 <SearchBar />
                 <aside className="sidebar">
                     <WeekPicker />
-                    <SidebarNavigation />
                 </aside>
                 <main className="main-content">
                     <DayOverview />
