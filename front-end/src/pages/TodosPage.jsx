@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import './TodosPage.css'
 
 function TopBar() {
@@ -142,33 +143,24 @@ function TodoItem({ todo }) {
     )
 }
 
-function NextPage() {
-
-}
 export default function TodosPage() {
     const todos = [
-    {
-        id: 1,
-        title: 'learn English',
-        description: 'learn 100 vocabs',
-        dueDate: '2026-10-22',
-    },
-    {
-        id: 2,
-        title: 'learn Chinese',
-        dueDate: '2026-10-24',
-    },
-    {
-        id: 3,
-        title: 'learn Korean',
-        dueDate: '2026-10-25',
-    },
-    {
-        id: 4,
-        title: 'learn Japanese',
-        dueDate: '2026-10-26',
-    },
+        { id: 1, title: 'learn English', description: 'learn 100 vocabs', dueDate: '2026-10-22' },
+        { id: 2, title: 'learn Chinese', dueDate: '2026-10-24' },
+        { id: 3, title: 'learn Korean', dueDate: '2026-10-25' },
+        { id: 4, title: 'learn Japanese', dueDate: '2026-10-26' },
+        { id: 5, title: 'Finish project proposal', dueDate: '2026-10-27' },
+        { id: 6, title: 'Go for a run', dueDate: '2026-10-28' },
+        { id: 7, title: 'Read 20 pages', dueDate: '2026-10-29' },
+        { id: 8, title: 'Plan next week', dueDate: '2026-10-30' },
+        { id: 9, title: 'Call a friend', dueDate: '2026-10-31' },
+        { id: 10, title: 'Organize workspace', dueDate: '2026-11-01' },
+        { id: 11, title: 'Review notes', dueDate: '2026-11-02' },
     ]
+    const [currentPage, setCurrentPage] = useState(1)
+    const pageSize = 5
+    const totalPages = Math.ceil(todos.length / pageSize)
+    const visibleTodos = todos.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
     return (
         <div className="todo-page">
@@ -182,7 +174,18 @@ export default function TodosPage() {
                 <main className="main-content">
                     <DayOverview />
                     <ProgressSummary done={0} total={todos.length} />
-                    <TodoList todos={todos} />
+                    <TodoList todos={visibleTodos} />
+                    {totalPages > 1 && (
+                        <nav className="todo-pagination" aria-label="Task pages">
+                            <button type="button" onClick={() => setCurrentPage((page) => page - 1)} disabled={currentPage === 1}>
+                                <span aria-hidden="true">←</span> Previous
+                            </button>
+                            <span>Page {currentPage} of {totalPages}</span>
+                            <button type="button" onClick={() => setCurrentPage((page) => page + 1)} disabled={currentPage === totalPages}>
+                                Next <span aria-hidden="true">→</span>
+                            </button>
+                        </nav>
+                    )}
                 </main>
             </div>
         </div>
