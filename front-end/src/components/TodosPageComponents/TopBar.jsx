@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-export function TopBar({ firstName }) {
+export function TopBar({ firstName, onAddTask }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [logoutError, setLogoutError] = useState('')
     const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -67,7 +67,7 @@ export function TopBar({ firstName }) {
         </div>
             )}
         </div>
-                <button className="add-task-button" type="button">
+                <button className="add-task-button" type="button" onClick={onAddTask}>
                     <span aria-hidden="true">＋</span> Add a task
                 </button>
             </div>

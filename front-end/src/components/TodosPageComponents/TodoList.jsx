@@ -1,6 +1,6 @@
 import { TodoItem } from './TodoItem.jsx'
 
-export function TodoList({ todos }) {
+export function TodoList({ todos, onToggle, onUpdated, onDelete }) {
     return (
         <section className="todo-list-card">
             <div className="todo-list-heading">
@@ -9,7 +9,13 @@ export function TodoList({ todos }) {
             </div>
             <ul>
                 {todos.map((todo) => (
-                    <TodoItem key={todo.id} todo={todo} />
+                    <TodoItem
+                        key={todo.id}
+                        todo={todo}
+                        onToggle={onToggle}
+                        onUpdated={onUpdated}
+                        onDelete={onDelete}
+                    />
                 ))}
             </ul>
         </section>
