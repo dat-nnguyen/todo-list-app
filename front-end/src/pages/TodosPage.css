@@ -371,6 +371,41 @@
   color: var(--ink);
 }
 
+.todo-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 4px 4px;
+  color: #777;
+  font-size: 13px;
+}
+
+.todo-pagination button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+}
+
+.todo-pagination button:hover:not(:disabled) {
+  border-color: #bbb;
+  background: #f8f8f8;
+}
+
+.todo-pagination button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
 .todo-item {
   min-height: 64px;
   display: flex;
