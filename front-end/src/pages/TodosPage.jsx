@@ -1,180 +1,126 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './TodosPage.css'
-
-function TopBar() {
-    return (
-        <header className="topbar">
-            <a className="brand" href="/todos" aria-label="Daylist home">
-                <span>Todo List</span>
-            </a>
-            <div className="topbar-actions">
-                <button className="avatar-button" type="button" aria-label="User profile">Dat</button>
-                <button className="add-task-button" type="button">
-                    <span aria-hidden="true">＋</span> Add a task
-                </button>
-            </div>
-        </header>
-    )
-}
-
-function SearchBar() {
-    return (
-        <div className="search-row">
-            <label className="search-field" htmlFor="search">
-                <span className="search-icon" aria-hidden="true">⌕</span>
-                <input type="search" id="search" placeholder="Search your tasks..." />
-                <kbd>⌘K</kbd>
-            </label>
-            <button className="filter-button" type="button" aria-label="Filter tasks">
-                <span aria-hidden="true">☷</span>
-                <span>Filter</span>
-            </button>
-        </div>
-    )
-}
-
-
-
-function WeekPicker() {
-    const days = [
-        { letter: 'M', date: '19' },
-        { letter: 'T', date: '20' },
-        { letter: 'W', date: '21', selected: true },
-        { letter: 'T', date: '22' },
-        { letter: 'F', date: '23' },
-        { letter: 'S', date: '24' },
-        { letter: 'S', date: '25' },
-    ]
-
-    return (
-        <section className="week-section" aria-label="Choose a day this week">
-            <p className="section-eyebrow">This week</p>
-            <ol className="week-picker">
-                {days.map((day, index) => (
-                    <li key={`${day.letter}-${day.date}-${index}`}>
-                        <button className={`day-button${day.selected ? ' is-selected' : ''}`} type="button" aria-pressed={Boolean(day.selected)}>
-                            <span>{day.letter}</span>
-                            <strong>{day.date}</strong>
-                        </button>
-                    </li>
-                ))}
-            </ol>
-        </section>
-    )
-}
-
-function SidebarNavigation() {
-    const links = [
-        { icon: '◉', label: 'Today', active: true },
-        { icon: '▦', label: 'Upcoming' },
-        { icon: '▱', label: 'My lists' },
-    ]
-
-    return (
-        <nav className="sidebar-navigation" aria-label="Task views">
-            <p className="section-eyebrow">Navigation</p>
-            <ul>
-                {links.map((link) => (
-                    <li key={link.label}>
-                        <button className={`nav-item${link.active ? ' is-active' : ''}`} type="button" aria-current={link.active ? 'page' : undefined}>
-                            <span aria-hidden="true">{link.icon}</span>{link.label}
-                        </button>
-                    </li>
-                ))}
-            </ul>
-        </nav>
-    )
-}
-
-function DayOverview() {
-    return (
-        <section className="day-overview">
-            <div>
-                <p className="overview-kicker">Wednesday, October 21</p>
-                <h1>Today.</h1>
-                <p className="overview-subtitle">Make room for what matters.</p>
-            </div>
-        </section>
-    )
-}
-
-function ProgressSummary({ done, total }) {
-    return (
-        <section className="progress-summary" aria-label="Task completion progress">
-            <div className="progress-copy">
-                <p><strong>{done} / {total}</strong><span>tasks done</span></p>
-                <span className="progress-caption">Just keep going</span>
-            </div>
-            <div className="progress-track" role="progressbar" aria-valuenow={done} aria-valuemin="0" aria-valuemax={total}>
-                {Array.from({ length: total }, (_, index) => (
-                    <span className={index < done ? 'is-done' : ''} key={index} />
-                ))}
-            </div>
-        </section>
-    )
-}
-
-function TodoList({ todos }) {
-    return (
-        <section className="todo-list-card">
-            <div className="todo-list-heading">
-                <h2>Your tasks <span>{String(todos.length).padStart(2, '0')}</span></h2>
-                <button className="sort-button" type="button">↕ <span>My order</span></button>
-            </div>
-            <ul>
-                {todos.map((todo) => (
-                    <TodoItem key={todo.id} todo={todo} />
-                ))}
-            </ul>
-        </section>
-    )
-}
-
-function TodoItem({ todo }) {
-    return (
-        <li className="todo-item">
-            <button className="todo-check" type="button" aria-label={`Mark ${todo.title} complete`} />
-            <div className="todo-copy">
-                <strong>{todo.title}</strong>
-                <p>{todo.description || 'Personal'}<span>·</span>{todo.dueDate ? `Due ${todo.dueDate}` : 'No due date'}</p>
-            </div>
-            <button className="todo-more" type="button" aria-label={`More options for ${todo.title}`}>···</button>
-        </li>
-    )
-}
+import { TopBar } from '../components/TodosPageComponents/TopBar'
+import { SearchBar } from '../components/TodosPageComponents/SearchBar'
+import { WeekPicker } from '../components/TodosPageComponents/WeekPicker'
+import { DayOverview } from '../components/TodosPageComponents/DayOverView'
+import { ProgressSummary } from '../components/TodosPageComponents/ProgressSummary'
+import { TodoList } from '../components/TodosPageComponents/TodoList'
+import { AddTaskModal } from '../components/TodosPageComponents/AddTaskModal'
 
 export default function TodosPage() {
-    const todos = [
-        { id: 1, title: 'learn English', description: 'learn 100 vocabs', dueDate: '2026-10-22' },
-        { id: 2, title: 'learn Chinese', dueDate: '2026-10-24' },
-        { id: 3, title: 'learn Korean', dueDate: '2026-10-25' },
-        { id: 4, title: 'learn Japanese', dueDate: '2026-10-26' },
-        { id: 5, title: 'Finish project proposal', dueDate: '2026-10-27' },
-        { id: 6, title: 'Go for a run', dueDate: '2026-10-28' },
-        { id: 7, title: 'Read 20 pages', dueDate: '2026-10-29' },
-        { id: 8, title: 'Plan next week', dueDate: '2026-10-30' },
-        { id: 9, title: 'Call a friend', dueDate: '2026-10-31' },
-        { id: 10, title: 'Organize workspace', dueDate: '2026-11-01' },
-        { id: 11, title: 'Review notes', dueDate: '2026-11-02' },
-    ]
+    const [todos, setTodos] = useState([])
+    const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+    const [user, setUser] = useState(null)
+    const navigate = useNavigate()
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 5
     const totalPages = Math.ceil(todos.length / pageSize)
     const visibleTodos = todos.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    const completedCount = todos.filter((todo) => todo.status === 'completed').length
+
+    async function updateTodo(todo, updates) {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/todos/${todo.id}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updates),
+        })
+        const data = await response.json()
+        if (!response.ok) throw new Error(data?.error?.message || 'Could not update task.')
+        setTodos((currentTodos) => currentTodos.map((item) => item.id === data.todo.id ? data.todo : item))
+        return data.todo
+    }
+
+    async function handleToggleTodo(todo, status) {
+        try {
+            await updateTodo(todo, { status })
+        } catch (error) {
+            console.error(error.message || 'Could not update task status.')
+        }
+    }
+
+    async function handleDeleteTodo(todo) {
+        if (!window.confirm(`Delete "${todo.title}"?`)) return
+
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/todos/${todo.id}`,
+                {
+                    method: 'DELETE',
+                    credentials: 'include',
+                },
+            )
+
+            if (!response.ok) {
+                throw new Error('Could not delete task.')
+            }
+            
+            setTodos((currentTodos) =>
+                currentTodos.filter((item) => item.id !== todo.id),
+            )
+        } catch (error) {
+            console.error(error.message || 'Could not delete task.')
+        }
+    }
+
+    useEffect(() => {
+        let cancelled = false
+
+        async function getUser() {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+                    credentials: 'include',
+                })
+
+                if (response.status === 401) {
+                    navigate('/login', { replace: true })
+                    return
+                }
+
+                const data = await response.json()
+                if (!response.ok) {
+                    throw new Error(data?.error?.message || 'Could not load user.')
+                }
+
+                if (!cancelled) setUser(data.user)
+            } catch (error) {
+                if (!cancelled) {
+                    console.error(error.message || 'Could not load user.')
+                }
+            }
+        }
+
+        getUser()
+        return () => {
+            cancelled = true
+        }
+    }, [navigate])
 
     return (
         <div className="todo-page">
-            <TopBar />
+            <TopBar firstName={user?.firstName} onAddTask={() => setIsAddTaskOpen(true)} />
+            {isAddTaskOpen && (
+                <AddTaskModal
+                    onClose={() => setIsAddTaskOpen(false)}
+                    onCreated={(todo) => setTodos((currentTodos) => [todo, ...currentTodos])}
+                />
+            )}
             <div className="page-shell">
                 <SearchBar />
                 <aside className="sidebar">
                     <WeekPicker />
-                    <SidebarNavigation />
                 </aside>
                 <main className="main-content">
                     <DayOverview />
-                    <ProgressSummary done={0} total={todos.length} />
-                    <TodoList todos={visibleTodos} />
+                    <ProgressSummary done={completedCount} total={todos.length} />
+                    <TodoList
+                        todos={visibleTodos}
+                        onToggle={handleToggleTodo}
+                        onUpdated={(updatedTodo) => setTodos((currentTodos) => currentTodos.map((todo) => todo.id === updatedTodo.id ? updatedTodo : todo))}
+                        onDelete={handleDeleteTodo}
+                    />
                     {totalPages > 1 && (
                         <nav className="todo-pagination" aria-label="Task pages">
                             <button type="button" onClick={() => setCurrentPage((page) => page - 1)} disabled={currentPage === 1}>

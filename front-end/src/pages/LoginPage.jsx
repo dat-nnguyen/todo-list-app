@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import './AuthPages.css'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export function AuthPromoPanel() {
     return (
@@ -27,8 +28,36 @@ export function AuthPromoPanel() {
 }
 
 export default function LoginPage() {
-    function handleSubmit(event) {
+    const navigate = useNavigate()
+    const [loginError, setLoginError] = useState('')
+
+    async function handleSubmit(event) {
         event.preventDefault()
+        const formData = new FormData(event.currentTarget)
+        setLoginError('')
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: formData.get('email'),
+                    password: formData.get('password'),
+                }),
+            })
+
+            const data = await response.json()
+            if (!response.ok) {
+                throw new Error(data?.error?.message || 'Login failed. Please try again.')
+            }
+
+            navigate('/todos')
+        } catch (error) {
+            setLoginError(error.message || 'Unable to log in. Please try again.')
+        }
     }
 
     return (
@@ -51,6 +80,7 @@ export default function LoginPage() {
                         <div className="auth-form-options">
                             <Link to="/forgot-password">Forgot password?</Link>
                         </div>
+                        {loginError && <p className="auth-feedback" role="alert">{loginError}</p>}
                         <button className="auth-submit" type="submit">Log in <span aria-hidden="true">↗</span></button>
                     </form>
                     <p className="auth-switch">New to daylist? <Link to="/register">Create an account</Link></p>
