@@ -3,7 +3,7 @@ import { fetchTodosPage } from '../features/todos/fetchTodosPage.js'
 
 const PAGE_SIZE = 5
 
-export function useTodos({ currentCursor, reloadKey, navigate }) {
+export function useTodos({ currentCursor, reloadKey, navigate, date }) {
     const [todos, setTodos] = useState([])
     const [summary, setSummary] = useState({ totalCount: 0, completedCount: 0 })
     const [nextCursor, setNextCursor] = useState(null)
@@ -24,6 +24,7 @@ export function useTodos({ currentCursor, reloadKey, navigate }) {
                     signal: controller.signal,
                     navigate,
                     limit: PAGE_SIZE,
+                    date,
                 })
 
                 if (!active || !data) return
@@ -44,7 +45,7 @@ export function useTodos({ currentCursor, reloadKey, navigate }) {
             active = false
             controller.abort()
         }
-    }, [currentCursor, navigate, reloadKey])
+    }, [currentCursor, date, navigate, reloadKey])
 
     return {
         todos,

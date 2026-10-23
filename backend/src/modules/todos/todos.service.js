@@ -14,8 +14,8 @@ function todoNotFoundError() {
     return error;
 }
 
-export async function createTodoService({ userId, title, description, status, dueDate }) {
-    const todo = await createTodoRepository({ userId, title, description, status, dueDate });
+export async function createTodoService({ userId, title, description, status, dueDate, dueTime, taskDate }) {
+    const todo = await createTodoRepository({ userId, title, description, status, dueDate, dueTime, taskDate });
 
     if (!todo) {
         const error = new Error('Failed to create todo');
@@ -37,10 +37,10 @@ export async function getTodoService({ id, userId }) {
     return todo;
 }
 
-export async function getTodosService({ userId, limit, cursor }) {
+export async function getTodosService({ userId, limit, cursor, date }) {
     const [todos, summary] = await Promise.all([
-        listByUserId({ userId, limit: limit + 1, cursor }),
-        getTodoSummaryByUserId({ userId }),
+        listByUserId({ userId, limit: limit + 1, cursor, date }),
+        getTodoSummaryByUserId({ userId, date }),
     ]);
 
     return { todos, summary };

@@ -1,6 +1,7 @@
-export async function fetchTodosPage({ cursor, signal, navigate, limit = 5 }) {
+export async function fetchTodosPage({ cursor, signal, navigate, limit = 5, date }) {
     const params = new URLSearchParams({ limit: String(limit) })
     if (cursor) params.set('cursor', cursor)
+    if (date) params.set('date', date)
 
     const response = await fetch(`${import.meta.env.VITE_API_URL}/todos?${params.toString()}`, {
         credentials: 'include',

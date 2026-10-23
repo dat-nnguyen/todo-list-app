@@ -14,6 +14,8 @@ export async function createTodoController(req, res, next) {
             description: req.body.description,
             status: req.body.status,
             dueDate: req.body.dueDate,
+            dueTime: req.body.dueTime,
+            taskDate: req.body.taskDate,
         });
 
         res.status(201).json({ todo: toTodoResponse(result) });
@@ -37,13 +39,14 @@ export async function getTodoController(req, res, next) {
 
 export async function getTodosController(req, res, next) {
     try {
-        const { limit, cursor: encodedCursor } = req.validatedQuery;
+        const { limit, cursor: encodedCursor, date } = req.validatedQuery;
         const cursor = encodedCursor ? decodeCursor(encodedCursor) : undefined;
 
         const { todos: fetchedTodos, summary } = await getTodosService({
             userId: req.session.userId,
             limit,
             cursor,
+            date,
         });
         const hasMore = fetchedTodos.length > limit;
         const todos = fetchedTodos.slice(0, limit);
@@ -91,12 +94,18 @@ export async function deleteTodoController(req, res, next) {
 }
 
 function toTodoResponse(todo) {
+    const taskDate = todo.task_date instanceof Date
+        ? todo.task_date.toISOString().slice(0, 10)
+        : todo.task_date;
+
     return {
         id: todo.id,
         title: todo.title,
         description: todo.description,
         status: todo.status,
         dueDate: todo.due_date,
+        dueTime: todo.due_time,
+        taskDate,
         createdAt: todo.created_at,
         updatedAt: todo.updated_at,
     };

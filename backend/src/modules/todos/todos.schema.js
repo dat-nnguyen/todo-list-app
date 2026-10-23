@@ -22,6 +22,8 @@ export const createTodoSchema = z.object({
         .optional()
         .default(TODO_STATUS.PENDING),
     dueDate: z.iso.date().nullable().optional(),
+    dueTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, { message: 'Due time must be in HH:mm format' }).nullable().optional(),
+    taskDate: z.iso.date().optional(),
 });
 
 export const updateTodoSchema = z
@@ -44,19 +46,24 @@ export const updateTodoSchema = z
             .enum([TODO_STATUS.PENDING, TODO_STATUS.IN_PROGRESS, TODO_STATUS.COMPLETED])
             .optional(),
         dueDate: z.iso.date().nullable().optional(),
+        dueTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, { message: 'Due time must be in HH:mm format' }).nullable().optional(),
+        taskDate: z.iso.date().optional(),
     })
     .refine(
         (data) =>
             data.title !== undefined ||
             data.description !== undefined ||
             data.status !== undefined ||
-            data.dueDate !== undefined,
+            data.dueDate !== undefined ||
+            data.dueTime !== undefined ||
+            data.taskDate !== undefined,
         { message: 'At least one field is required', path: ['_root'] }
     );
 
 export const listTodoQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(20),
-    cursor: z.string().optional()
+    cursor: z.string().optional(),
+    date: z.iso.date().optional(),
 })
 
 export const todoIdParamSchema = z.object({
