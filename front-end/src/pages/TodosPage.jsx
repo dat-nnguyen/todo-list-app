@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './TodosPage.css'
+import '../styles/TodosPage.css'
 import { TopBar } from '../components/TodosPageComponents/TopBar'
 import { SearchBar } from '../components/TodosPageComponents/SearchBar'
 import { WeekPicker } from '../components/TodosPageComponents/WeekPicker'
@@ -8,126 +8,100 @@ import { DayOverview } from '../components/TodosPageComponents/DayOverView'
 import { ProgressSummary } from '../components/TodosPageComponents/ProgressSummary'
 import { TodoList } from '../components/TodosPageComponents/TodoList'
 import { AddTaskModal } from '../components/TodosPageComponents/AddTaskModal'
+import { createToggleTodoHandler } from '../features/todos/handleToggleTodo.js'
+import { createDeleteTodoHandler } from '../features/todos/handleDeleteTodo.js'
+import { useCurrentUser } from '../hooks/useCurrentUser.js'
+import { useTodos } from '../hooks/useTodos.js'
 
 export default function TodosPage() {
-    const [todos, setTodos] = useState([])
-    const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
-    const [user, setUser] = useState(null)
     const navigate = useNavigate()
-    const [currentPage, setCurrentPage] = useState(1)
-    const pageSize = 5
-    const totalPages = Math.ceil(todos.length / pageSize)
-    const visibleTodos = todos.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-    const completedCount = todos.filter((todo) => todo.status === 'completed').length
+    const [currentPage, setCurrentPage] = useState(0)
+    const [pageCursors, setPageCursors] = useState([null])
+    const [reloadKey, setReloadKey] = useState(0)
+    const currentCursor = pageCursors[currentPage]
+    const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
+    const user = useCurrentUser(navigate)
+    const {
+        todos,
+        setTodos,
+        summary,
+        nextCursor,
+        isLoadingTodos,
+        todosError,
+        pageSize,
+    } = useTodos({ currentCursor, reloadKey, navigate })
+    const totalPages = Math.ceil(summary.totalCount / pageSize)
+    const handleToggleTodo = createToggleTodoHandler({ setTodos })
+    const handleDeleteTodo = createDeleteTodoHandler({ setTodos })
 
-    async function updateTodo(todo, updates) {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/todos/${todo.id}`, {
-            method: 'PATCH',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates),
-        })
-        const data = await response.json()
-        if (!response.ok) throw new Error(data?.error?.message || 'Could not update task.')
-        setTodos((currentTodos) => currentTodos.map((item) => item.id === data.todo.id ? data.todo : item))
-        return data.todo
+    function goToNextPage() {
+        if (!nextCursor || isLoadingTodos) return
+
+        setPageCursors((cursor) => [
+            ...cursor.slice(0, currentPage + 1), 
+            nextCursor
+        ])
+        setCurrentPage((page) => page + 1) 
     }
 
-    async function handleToggleTodo(todo, status) {
-        try {
-            await updateTodo(todo, { status })
-        } catch (error) {
-            console.error(error.message || 'Could not update task status.')
-        }
+    function goToPreviousPage() {
+        setCurrentPage((page) => Math.max(0, page - 1))
     }
 
-    async function handleDeleteTodo(todo) {
-        if (!window.confirm(`Delete "${todo.title}"?`)) return
 
-        try {
-            const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/todos/${todo.id}`,
-                {
-                    method: 'DELETE',
-                    credentials: 'include',
-                },
-            )
-
-            if (!response.ok) {
-                throw new Error('Could not delete task.')
-            }
-            
-            setTodos((currentTodos) =>
-                currentTodos.filter((item) => item.id !== todo.id),
-            )
-        } catch (error) {
-            console.error(error.message || 'Could not delete task.')
-        }
-    }
-
-    useEffect(() => {
-        let cancelled = false
-
-        async function getUser() {
-            try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
-                    credentials: 'include',
-                })
-
-                if (response.status === 401) {
-                    navigate('/login', { replace: true })
-                    return
-                }
-
-                const data = await response.json()
-                if (!response.ok) {
-                    throw new Error(data?.error?.message || 'Could not load user.')
-                }
-
-                if (!cancelled) setUser(data.user)
-            } catch (error) {
-                if (!cancelled) {
-                    console.error(error.message || 'Could not load user.')
-                }
-            }
-        }
-
-        getUser()
-        return () => {
-            cancelled = true
-        }
-    }, [navigate])
 
     return (
         <div className="todo-page">
-            <TopBar firstName={user?.firstName} onAddTask={() => setIsAddTaskOpen(true)} />
+            <TopBar firstName={user?.firstName} />
             {isAddTaskOpen && (
                 <AddTaskModal
                     onClose={() => setIsAddTaskOpen(false)}
-                    onCreated={(todo) => setTodos((currentTodos) => [todo, ...currentTodos])}
+                    onCreated={() => {
+                        setPageCursors([null])
+                        setCurrentPage(0)
+                        setReloadKey((key) => key + 1)
+                    }}
                 />
             )}
             <div className="page-shell">
                 <SearchBar />
+
                 <aside className="sidebar">
                     <WeekPicker />
+                    <button className="add-task-button" type="button" onClick={() => setIsAddTaskOpen(true)}>
+                        <span aria-hidden="true">＋</span> Add a task
+                    </button>
                 </aside>
                 <main className="main-content">
                     <DayOverview />
-                    <ProgressSummary done={completedCount} total={todos.length} />
+                    <ProgressSummary done={summary.completedCount} total={summary.totalCount} />
+                    {isLoadingTodos && <p role="status">Loading tasks…</p>}
+
+                    {todosError && <p className="add-task-error" role="alert">{todosError}</p>}
+
                     <TodoList
-                        todos={visibleTodos}
+                        todos={todos}
                         onToggle={handleToggleTodo}
                         onUpdated={(updatedTodo) => setTodos((currentTodos) => currentTodos.map((todo) => todo.id === updatedTodo.id ? updatedTodo : todo))}
                         onDelete={handleDeleteTodo}
                     />
-                    {totalPages > 1 && (
+                    {(currentPage > 0 || nextCursor) && (
                         <nav className="todo-pagination" aria-label="Task pages">
-                            <button type="button" onClick={() => setCurrentPage((page) => page - 1)} disabled={currentPage === 1}>
+                            <button
+                                type="button"
+                                onClick={goToPreviousPage}
+                                disabled={currentPage === 0 || isLoadingTodos}
+                            >
                                 <span aria-hidden="true">←</span> Previous
                             </button>
-                            <span>Page {currentPage} of {totalPages}</span>
-                            <button type="button" onClick={() => setCurrentPage((page) => page + 1)} disabled={currentPage === totalPages}>
+
+                            <span>Page {currentPage + 1} of {totalPages}</span>
+
+                            <button
+                                type="button"
+                                onClick={goToNextPage}
+                                disabled={!nextCursor || isLoadingTodos}
+                            >
                                 Next <span aria-hidden="true">→</span>
                             </button>
                         </nav>
