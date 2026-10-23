@@ -1,8 +1,10 @@
-import { createTodoService,
+import {
+    createTodoService,
     getTodoService,
     getTodosService,
     updateTodoService,
-    deleteTodoService } from "./todos.service.js";
+    deleteTodoService,
+} from './todos.service.js';
 
 export async function createTodoController(req, res, next) {
     try {
@@ -38,24 +40,28 @@ export async function getTodosController(req, res, next) {
         const { limit, cursor: encodedCursor } = req.validatedQuery;
         const cursor = encodedCursor ? decodeCursor(encodedCursor) : undefined;
 
-        const todos = await getTodosService({
+        const { todos: fetchedTodos, summary } = await getTodosService({
             userId: req.session.userId,
             limit,
             cursor,
         });
-
+        const hasMore = fetchedTodos.length > limit;
+        const todos = fetchedTodos.slice(0, limit);
         const lastTodo = todos.at(-1);
-        const nextCursor = todos.length === limit ? encodeCursor(lastTodo) : null;
+        const nextCursor = hasMore && lastTodo ? encodeCursor(lastTodo) : null;
 
         res.status(200).json({
             todos: todos.map(toTodoResponse),
             nextCursor,
+            summary: {
+                totalCount: summary.total_count,
+                completedCount: summary.completed_count,
+            },
         });
     } catch (error) {
         next(error);
     }
 }
-
 export async function updateTodoController(req, res, next) {
     try {
         const result = await updateTodoService({

@@ -2,6 +2,7 @@ import {
     createTodo as createTodoRepository,
     findByIdAndUserId,
     listByUserId,
+    getTodoSummaryByUserId,
     updateTodo as updateTodoRepository,
     deleteTodo as deleteTodoRepository,
 } from './todos.repository.js';
@@ -36,8 +37,13 @@ export async function getTodoService({ id, userId }) {
     return todo;
 }
 
-export function getTodosService({ userId, limit, cursor }) {
-    return listByUserId({ userId, limit, cursor });
+export async function getTodosService({ userId, limit, cursor }) {
+    const [todos, summary] = await Promise.all([
+        listByUserId({ userId, limit: limit + 1, cursor }),
+        getTodoSummaryByUserId({ userId }),
+    ]);
+
+    return { todos, summary };
 }
 
 export async function updateTodoService({ id, userId, updates }) {

@@ -41,6 +41,19 @@ export async function listByUserId({ userId, limit, cursor }) {
 
     return result.rows;
 }
+
+export async function getTodoSummaryByUserId({ userId }) {
+    const result = await query(
+        `SELECT
+            COUNT(*)::int AS total_count,
+            COUNT(*) FILTER (WHERE status = 'completed')::int AS completed_count
+        FROM todos
+        WHERE user_id = $1`,
+        [userId]
+    );
+    return result.rows[0];
+}
+
 export async function updateTodo({ id, userId, updates }) {
     const allowedColumns = {
         title: 'title',
