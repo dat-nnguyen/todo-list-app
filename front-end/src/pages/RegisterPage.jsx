@@ -1,51 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthPromoPanel } from './LoginPage.jsx'
+import { createRegisterSubmitHandler } from '../features/auth/handleRegisterSubmit.js'
 
 export default function RegisterPage() {
     const [passwordError, setPasswordError] = useState('')
-
-    const navigate = useNavigate();
-
-    async function handleSubmit(event) {
-        event.preventDefault()
-        const formData = new FormData(event.currentTarget)
-        const password = formData.get('password')
-        const confirmPassword = formData.get('confirmPassword')
-
-        if (password !== confirmPassword) {
-            setPasswordError('Passwords do not match.')
-            return
-        }
-
-        setPasswordError('')
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        first_name: formData.get('first_name'),
-                        last_name: formData.get('last_name'),
-                        email: formData.get('email'),
-                        password: password
-                    }),
-                },
-            )
-
-            const data = await response.json();
-
-            if (!response.ok) throw new Error(data?.error?.message || 'Registration failed. Please try again.');
-
-            navigate('/login');
-        }
-        catch (error) {
-            setPasswordError(error.message || 'Unable to register. Please try again.')
-        }
-    }
+    const navigate = useNavigate()
+    const handleRegisterSubmit = createRegisterSubmitHandler({ setPasswordError, navigate })
 
     return (
         <main className="auth-page">
@@ -55,7 +16,7 @@ export default function RegisterPage() {
                     <p className="auth-eyebrow">A LITTLE FOCUS. A LITTLE FREEDOM.</p>
                     <h1 id="register-title">Your day starts here.</h1>
                     <p className="auth-intro">Create an account. Make space for what matters.</p>
-                    <form className="auth-form" onSubmit={handleSubmit}>
+                    <form className="auth-form" onSubmit={handleRegisterSubmit}>
                         <label className="auth-field">
                             <span>First name</span>
                             <input type="text" name="first_name" placeholder="First name" autoComplete="given-name" required />

@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import './AuthPages.css'
+import '../styles/AuthPages.css'
 import { Link, useNavigate } from 'react-router-dom'
+import { createLoginSubmitHandler } from '../features/auth/handleLoginSubmit.js'
 
 export function AuthPromoPanel() {
     return (
@@ -30,35 +31,7 @@ export function AuthPromoPanel() {
 export default function LoginPage() {
     const navigate = useNavigate()
     const [loginError, setLoginError] = useState('')
-
-    async function handleSubmit(event) {
-        event.preventDefault()
-        const formData = new FormData(event.currentTarget)
-        setLoginError('')
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    email: formData.get('email'),
-                    password: formData.get('password'),
-                }),
-            })
-
-            const data = await response.json()
-            if (!response.ok) {
-                throw new Error(data?.error?.message || 'Login failed. Please try again.')
-            }
-
-            navigate('/todos')
-        } catch (error) {
-            setLoginError(error.message || 'Unable to log in. Please try again.')
-        }
-    }
+    const handleLoginSubmit = createLoginSubmitHandler({ setLoginError, navigate })
 
     return (
         <main className="auth-page">
@@ -68,7 +41,7 @@ export default function LoginPage() {
                     <p className="auth-eyebrow">YOUR DAY, YOUR WAY</p>
                     <h1 id="login-title">Welcome back.</h1>
                     <p className="auth-intro">A fresh day. A little focus. Let’s pick up where you left off.</p>
-                    <form className="auth-form" onSubmit={handleSubmit}>
+                    <form className="auth-form" onSubmit={handleLoginSubmit}>
                         <label className="auth-field">
                             <span>Email address</span>
                             <input type="email" name="email" placeholder="you@example.com" autoComplete="email" required />
@@ -83,7 +56,7 @@ export default function LoginPage() {
                         {loginError && <p className="auth-feedback" role="alert">{loginError}</p>}
                         <button className="auth-submit" type="submit">Log in <span aria-hidden="true">↗</span></button>
                     </form>
-                    <p className="auth-switch">New to daylist? <Link to="/register">Create an account</Link></p>
+                    <p className="auth-switch">Don't have an account? <Link to="/register">Create an account</Link></p>
                 </div>
             </section>
         </main>
