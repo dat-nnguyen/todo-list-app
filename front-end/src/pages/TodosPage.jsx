@@ -52,7 +52,7 @@ export default function TodosPage() {
 
     return (
         <div className="todo-page">
-            <TopBar firstName={user?.firstName} onAddTask={() => setIsAddTaskOpen(true)} />
+            <TopBar firstName={user?.firstName} />
             {isAddTaskOpen && (
                 <AddTaskModal
                     onClose={() => setIsAddTaskOpen(false)}
@@ -68,6 +68,9 @@ export default function TodosPage() {
 
                 <aside className="sidebar">
                     <WeekPicker />
+                    <button className="add-task-button" type="button" onClick={() => setIsAddTaskOpen(true)}>
+                        <span aria-hidden="true">＋</span> Add a task
+                    </button>
                 </aside>
                 <main className="main-content">
                     <DayOverview />
