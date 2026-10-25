@@ -19,6 +19,10 @@ export const config = {
     secure: process.env.SESSION_SECURE === 'true',
     maxAgeMs: parseInt(process.env.SESSION_MAX_AGE_MS || '86400000', 10),
   },
+  memcached: {
+    servers: process.env.MEMCACHED_SERVERS || 'localhost:11211',
+    todoListTtlSeconds: parseInt(process.env.MEMCACHED_TODO_LIST_TTL_SECONDS || '60', 10),
+  },
 };
 
 export function getDatabaseUrl() {

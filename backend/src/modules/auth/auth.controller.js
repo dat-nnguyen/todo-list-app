@@ -51,15 +51,6 @@ export async function me(req, res, next) {
     }
 }
 
-export async function requestPasswordReset(req, res, next) {
-    try {
-        await authService.requestPasswordReset(req.body.email);
-        res.status(200).json({ message: 'If an account exists for this email, password reset instructions will be sent.' });
-    } catch (error) {
-        next(error);
-    }
-}
-
 function toUserResponse(user) {
     return {
         id: user.id,

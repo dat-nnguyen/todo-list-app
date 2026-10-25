@@ -3,7 +3,6 @@ import { findByEmailWithPassword, createUser, findById } from './auth.repository
 
 const SALT_ROUNDS = 10;
 
-
 export async function register({ first_name, last_name, email, password }) {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
@@ -34,7 +33,6 @@ export async function login(email, password) {
         throw error;
     }
 
-
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
@@ -60,10 +58,4 @@ export async function getMe(userId) {
     }
 
     return user;
-}
-
-export async function requestPasswordReset(email) {
-    // Email delivery and verified reset tokens will be added in a later step.
-    // Never change a password based only on a submitted email address.
-    return { accepted: true, email };
 }
