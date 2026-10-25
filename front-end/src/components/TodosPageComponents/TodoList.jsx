@@ -1,11 +1,17 @@
 import { TodoItem } from './TodoItem.jsx'
+import { TaskListControls } from './TaskListControls.jsx'
 
-export function TodoList({ todos, onToggle, onUpdated, onDelete }) {
+export function TodoList({ todos, onToggle, onUpdated, onDelete, sortOrder, onSortChange, statusFilter, onStatusFilterChange }) {
     return (
         <section className="todo-list-card">
             <div className="todo-list-heading">
-                <h2>Your tasks <span>{String(todos.length).padStart(2, '0')}</span></h2>
-                <button className="sort-button" type="button">↕ <span>My order</span></button>
+                <h2>Your tasks</h2>
+                <TaskListControls
+                    sortOrder={sortOrder}
+                    onSortChange={onSortChange}
+                    statusFilter={statusFilter}
+                    onStatusFilterChange={onStatusFilterChange}
+                />
             </div>
             <ul>
                 {todos.map((todo) => (

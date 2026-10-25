@@ -50,9 +50,6 @@ export default function LoginPage() {
                             <span>Password</span>
                             <input type="password" name="password" placeholder="Enter your password" autoComplete="current-password" required />
                         </label>
-                        <div className="auth-form-options">
-                            <Link to="/forgot-password">Forgot password?</Link>
-                        </div>
                         {loginError && <p className="auth-feedback" role="alert">{loginError}</p>}
                         <button className="auth-submit" type="submit">Log in <span aria-hidden="true">↗</span></button>
                     </form>

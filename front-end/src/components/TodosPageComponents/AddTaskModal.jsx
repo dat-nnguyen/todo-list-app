@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { TimePicker } from './TimePicker.jsx'
+import { StatusPicker } from './StatusPicker.jsx'
 
-export function AddTaskModal({ onCreated, onClose }) {
+export function AddTaskModal({ onCreated, onClose, taskDate }) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
 
@@ -8,7 +10,7 @@ export function AddTaskModal({ onCreated, onClose }) {
         event.preventDefault()
         const form = event.currentTarget
         const formData = new FormData(form)
-        const dueDateValue = formData.get('dueDate')
+        const dueTimeValue = formData.get('dueTime')
 
         setIsSubmitting(true)
         setErrorMessage('')
@@ -24,7 +26,8 @@ export function AddTaskModal({ onCreated, onClose }) {
                     title: formData.get('title'),
                     description: formData.get('description') || null,
                     status: formData.get('status'),
-                    dueDate: dueDateValue || null,
+                    dueTime: dueTimeValue || null,
+                    taskDate,
                 }),
             })
 
@@ -62,20 +65,16 @@ export function AddTaskModal({ onCreated, onClose }) {
                         <input type="text" name="title" placeholder="What needs to get done?" maxLength={255} required />
                     </label>
                     <label className="task-form-field">
-                        <span>Description <small>Optional</small></span>
+                        <span>Description <small>(Optional)</small></span>
                         <textarea name="description" placeholder="Add a few details" maxLength={2000} rows={3} />
                     </label>
                     <label className="task-form-field">
                         <span>Status</span>
-                        <select name="status" defaultValue="pending" required>
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In progress</option>
-                            <option value="completed">Completed</option>
-                        </select>
+                        <StatusPicker name="status" id="add-task-status" defaultValue="pending" />
                     </label>
                     <label className="task-form-field">
-                        <span>Due date <small>Optional</small></span>
-                        <input type="date" name="dueDate" />
+                        <span>Due time <small>(Optional)</small></span>
+                        <TimePicker name="dueTime" id="add-task-due-time" label="Choose due time" />
                     </label>
 
                     {errorMessage && <p className="add-task-error" role="alert">{errorMessage}</p>}

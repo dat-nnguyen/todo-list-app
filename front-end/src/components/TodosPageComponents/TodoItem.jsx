@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { TimePicker } from './TimePicker.jsx'
+import { StatusPicker } from './StatusPicker.jsx'
 
-function formatDueDate(value) {
-    if (!value) return 'No due date'
+function formatDueTime(value) {
+    if (!value) return 'No due time'
 
-    const dateOnly = value.slice(0, 10)
-    const [year, month, day] = dateOnly.split('-').map(Number)
-    const date = new Date(year, month - 1, day)
+    const [hours, minutes] = value.slice(0, 5).split(':').map(Number)
+    const date = new Date()
+    date.setHours(hours, minutes, 0, 0)
 
     return `Due ${new Intl.DateTimeFormat(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
     }).format(date)}`
 }
 
@@ -22,7 +23,7 @@ function EditTodoModal({ todo, onClose, onUpdated }) {
     async function handleSubmit(event) {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
-        const dueDate = formData.get('dueDate')
+        const dueTime = formData.get('dueTime')
         setIsSaving(true)
         setErrorMessage('')
 
@@ -35,7 +36,7 @@ function EditTodoModal({ todo, onClose, onUpdated }) {
                     title: formData.get('title'),
                     description: formData.get('description') || null,
                     status: formData.get('status'),
-                    dueDate: dueDate || null,
+                    dueTime: dueTime || null,
                 }),
             })
             const data = await response.json()
@@ -69,20 +70,21 @@ function EditTodoModal({ todo, onClose, onUpdated }) {
                         <input name="title" defaultValue={todo.title} maxLength={255} required />
                     </label>
                     <label className="task-form-field">
-                        <span>Description <small>Optional</small></span>
+                        <span>Description <small>(Optional)</small></span>
                         <textarea name="description" defaultValue={todo.description || ''} maxLength={2000} rows={3} />
                     </label>
                     <label className="task-form-field">
                         <span>Status</span>
-                        <select name="status" defaultValue={todo.status} required>
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In progress</option>
-                            <option value="completed">Completed</option>
-                        </select>
+                        <StatusPicker name="status" id={`edit-task-status-${todo.id}`} defaultValue={todo.status} />
                     </label>
                     <label className="task-form-field">
-                        <span>Due date <small>Optional</small></span>
-                        <input type="date" name="dueDate" defaultValue={todo.dueDate?.slice(0, 10) || ''} />
+                        <span>Due time <small>(Optional)</small></span>
+                        <TimePicker
+                            name="dueTime"
+                            id={`edit-task-due-time-${todo.id}`}
+                            label="Choose due time"
+                            defaultValue={todo.dueTime?.slice(0, 5) || ''}
+                        />
                     </label>
                     {errorMessage && <p className="add-task-error" role="alert">{errorMessage}</p>}
                     <div className="add-task-modal-actions">
@@ -114,7 +116,7 @@ export function TodoItem({ todo, onToggle, onUpdated, onDelete }) {
             </button>
             <div className="todo-copy">
                 <strong>{todo.title}</strong>
-                <p>{todo.description || 'No description'}<small>{formatDueDate(todo.dueDate)}</small></p>
+                <p>{todo.description || 'No description'}<small>{formatDueTime(todo.dueTime)}</small></p>
                 <span className={`todo-status status-${todo.status}`}>{todo.status.replace('_', ' ')}</span>
             </div>
             <div className="todo-item-menu-wrapper">
