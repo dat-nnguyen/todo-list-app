@@ -6,33 +6,71 @@ function toLocalDateKey(date) {
     return `${year}-${month}-${day}`
 }
 
-export function WeekPicker({ selectedDate, onSelectDate }) {
-    const today = new Date()
-    const mondayOffset = (today.getDay() + 6) % 7
-    const monday = new Date(today)
+function getWeekStart(date) {
+    const monday = new Date(date)
+    const mondayOffset = (monday.getDay() + 6) % 7
 
-    monday.setDate(today.getDate() - mondayOffset)
+    monday.setDate(monday.getDate() - mondayOffset)
     monday.setHours(0, 0, 0, 0)
+    return monday
+}
 
+function addDays(date, days) {
+    const nextDate = new Date(date)
+    nextDate.setDate(nextDate.getDate() + days)
+    return nextDate
+}
+
+export function WeekPicker({ selectedDate, onSelectDate }) {
+    const weekStart = getWeekStart(selectedDate)
+    const todayKey = toLocalDateKey(new Date())
+    const selectedDateKey = toLocalDateKey(selectedDate)
     const days = Array.from({ length: 7 }, (_, index) => {
-        const date = new Date(monday)
-        date.setDate(monday.getDate() + index)
+        const date = addDays(weekStart, index)
 
         return {
             date,
             dateKey: toLocalDateKey(date),
-            weekday: new Intl.DateTimeFormat(undefined, {
-                weekday: 'short',
-            }).format(date),
+            weekday: new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(date),
             dayOfMonth: date.getDate(),
         }
     })
-
-    const selectedDateKey = toLocalDateKey(selectedDate)
+    const weekLabel = new Intl.DateTimeFormat(undefined, {
+        month: 'short',
+        day: 'numeric',
+    }).formatRange(weekStart, addDays(weekStart, 6))
 
     return (
-        <section className="week-section" aria-label="Choose a day this week">
-            <p className="section-eyebrow">This week</p>
+        <section className="week-section" aria-label="Choose a day">
+            <div className="week-picker-heading">
+                <button
+                    className="week-nav-button"
+                    type="button"
+                    aria-label="Previous week"
+                    onClick={() => onSelectDate(addDays(selectedDate, -7))}
+                >
+                    <span aria-hidden="true">‹</span>
+                </button>
+                <div className="week-picker-title">
+                    <p className="section-eyebrow">{weekLabel}</p>
+                    <button
+                        className="week-today-button"
+                        type="button"
+                        onClick={() => onSelectDate(new Date())}
+                        disabled={selectedDateKey === todayKey}
+                    >
+                        Today
+                    </button>
+                </div>
+                <button
+                    className="week-nav-button"
+                    type="button"
+                    aria-label="Next week"
+                    onClick={() => onSelectDate(addDays(selectedDate, 7))}
+                >
+                    <span aria-hidden="true">›</span>
+                </button>
+            </div>
             <ol className="week-picker">
                 {days.map((day) => {
                     const isSelected = day.dateKey === selectedDateKey
