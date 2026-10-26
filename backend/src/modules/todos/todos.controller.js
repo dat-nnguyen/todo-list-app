@@ -112,7 +112,18 @@ function toTodoResponse(todo) {
 }
 
 function encodeCursor(todo) {
-    const payload = `${todo.created_at.toISOString()}|${todo.id}`;
+    const createdAt = todo.created_at instanceof Date
+        ? todo.created_at
+        : new Date(todo.created_at);
+
+    if (Number.isNaN(createdAt.getTime())) {
+        const error = new Error('Unable to create pagination cursor');
+        error.statusCode = 500;
+        error.code = 'INTERNAL_ERROR';
+        throw error;
+    }
+
+    const payload = `${createdAt.toISOString()}|${todo.id}`;
     return Buffer.from(payload).toString('base64url');
 }
 
