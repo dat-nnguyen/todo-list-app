@@ -1,7 +1,7 @@
 import { TodoItem } from './TodoItem.jsx'
-import { TaskListControls } from './TaskListControls.jsx'
+import { TaskListControls } from '../molecules/TaskListControls.jsx'
 
-export function TodoList({ todos, onToggle, onUpdated, onDelete, sortOrder, onSortChange, statusFilter, onStatusFilterChange }) {
+export function TodoList({ todos, onToggle, onSave, onDelete, sortOrder, onSortChange, statusFilter, onStatusFilterChange }) {
     return (
         <section className="todo-list-card">
             <div className="todo-list-heading">
@@ -19,7 +19,7 @@ export function TodoList({ todos, onToggle, onUpdated, onDelete, sortOrder, onSo
                         key={todo.id}
                         todo={todo}
                         onToggle={onToggle}
-                        onUpdated={onUpdated}
+                        onSave={onSave}
                         onDelete={onDelete}
                     />
                 ))}

@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../styles/TodosPage.css'
-import { TopBar } from '../components/TodosPageComponents/TopBar'
-import { WeekPicker } from '../components/TodosPageComponents/WeekPicker'
-import { DayOverview } from '../components/TodosPageComponents/DayOverView'
-import { ProgressSummary } from '../components/TodosPageComponents/ProgressSummary'
-import { TodoList } from '../components/TodosPageComponents/TodoList'
-import { AddTaskModal } from '../components/TodosPageComponents/AddTaskModal'
-import { createToggleTodoHandler } from '../features/todos/handleToggleTodo.js'
+import { TodosTemplate } from '../components/templates/TodosTemplate.jsx'
 import { createDeleteTodoHandler } from '../features/todos/handleDeleteTodo.js'
+import { createToggleTodoHandler } from '../features/todos/handleToggleTodo.js'
+import { updateTodo } from '../features/todos/updateTodo.js'
 import { useCurrentUser } from '../hooks/useCurrentUser.js'
 import { useTodos } from '../hooks/useTodos.js'
 import { useCurrentDateTime } from '../hooks/useCurrentDateTime.js'
@@ -36,6 +32,7 @@ export default function TodosPage() {
         todos,
         setTodos,
         summary,
+        setSummary,
         nextCursor,
         isLoadingTodos,
         todosError,
@@ -49,8 +46,12 @@ export default function TodosPage() {
             if (sortOrder === 'dueTime') return (first.dueTime || '99:99').localeCompare(second.dueTime || '99:99')
             return 0
         })
-    const handleToggleTodo = createToggleTodoHandler({ setTodos })
+    const handleToggleTodo = createToggleTodoHandler({ setTodos, setSummary })
     const handleDeleteTodo = createDeleteTodoHandler({ setTodos })
+    async function handleSaveTodo(todo, updates) {
+        const updatedTodo = await updateTodo({ todo, updates })
+        setTodos((currentTodos) => currentTodos.map((item) => item.id === updatedTodo.id ? updatedTodo : item))
+    }
     const currentDateTime = useCurrentDateTime()
 
     function goToNextPage() {
@@ -69,74 +70,47 @@ export default function TodosPage() {
 
 
 
+    function handleSelectDate(date) {
+        setSelectedDate(date)
+        setPageCursors([null])
+        setCurrentPage(0)
+    }
+
+    function handleTaskCreated() {
+        setPageCursors([null])
+        setCurrentPage(0)
+        setReloadKey((key) => key + 1)
+    }
+
     return (
-        <div className="todo-page">
-            <TopBar firstName={user?.firstName} />
-            {isAddTaskOpen && (
-                <AddTaskModal
-                    onClose={() => setIsAddTaskOpen(false)}
-                    taskDate={selectedDateKey}
-                    onCreated={() => {
-                        setPageCursors([null])
-                        setCurrentPage(0)
-                        setReloadKey((key) => key + 1)
-                    }}
-                />
-            )}
-            <div className="page-shell">
-
-                <aside className="sidebar">
-                    <WeekPicker
-                        selectedDate={selectedDate}
-                        onSelectDate={(date) => {
-                            setSelectedDate(date)
-                            setPageCursors([null])
-                            setCurrentPage(0)
-                        }}
-                    />
-                    <button className="add-task-button" type="button" onClick={() => setIsAddTaskOpen(true)}>
-                        <span aria-hidden="true">＋</span> Add a task
-                    </button>
-                </aside>
-                <main className="main-content">
-                    <DayOverview selectedDate={selectedDate} currentDateTime={currentDateTime} />
-                    <ProgressSummary done={summary.completedCount} total={summary.totalCount} />
-                    <div className="todo-list-region" aria-busy={isLoadingTodos}>
-                        {todosError && <p className="add-task-error" role="alert">{todosError}</p>}
-                        <TodoList
-                            todos={visibleTodos}
-                            sortOrder={sortOrder}
-                            onSortChange={setSortOrder}
-                            statusFilter={statusFilter}
-                            onStatusFilterChange={setStatusFilter}
-                            onToggle={handleToggleTodo}
-                            onUpdated={(updatedTodo) => setTodos((currentTodos) => currentTodos.map((todo) => todo.id === updatedTodo.id ? updatedTodo : todo))}
-                            onDelete={handleDeleteTodo}
-                        />
-                    </div>
-                    {(currentPage > 0 || nextCursor) && (
-                        <nav className="todo-pagination" aria-label="Task pages">
-                            <button
-                                type="button"
-                                onClick={goToPreviousPage}
-                                disabled={currentPage === 0 || isLoadingTodos}
-                            >
-                                <span aria-hidden="true">←</span> Previous
-                            </button>
-
-                            <span>Page {currentPage + 1} of {totalPages}</span>
-
-                            <button
-                                type="button"
-                                onClick={goToNextPage}
-                                disabled={!nextCursor || isLoadingTodos}
-                            >
-                                Next <span aria-hidden="true">→</span>
-                            </button>
-                        </nav>
-                    )}
-                </main>
-            </div>
-        </div>
+        <TodosTemplate
+            firstName={user?.firstName}
+            isAddTaskOpen={isAddTaskOpen}
+            onOpenAddTask={() => setIsAddTaskOpen(true)}
+            onCloseAddTask={() => setIsAddTaskOpen(false)}
+            selectedDate={selectedDate}
+            selectedDateKey={selectedDateKey}
+            onSelectDate={handleSelectDate}
+            onTaskCreated={handleTaskCreated}
+            currentDateTime={currentDateTime}
+            summary={summary}
+            isLoadingTodos={isLoadingTodos}
+            todosError={todosError}
+            todos={visibleTodos}
+            sortOrder={sortOrder}
+            onSortChange={setSortOrder}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            onToggleTodo={handleToggleTodo}
+            onSaveTodo={handleSaveTodo}
+            onDeleteTodo={handleDeleteTodo}
+            pagination={{
+                currentPage,
+                nextCursor,
+                totalPages,
+                onPrevious: goToPreviousPage,
+                onNext: goToNextPage,
+            }}
+        />
     )
 }
