@@ -203,23 +203,6 @@ The task-list cache uses cache-aside:
 
 Memcached is ephemeral; restarting its container may clear cached entries but does not delete tasks.
 
-## Tests and quality checks
-
-Backend:
-
-```bash
-cd backend
-npm test
-```
-
-Frontend:
-
-```bash
-cd front-end
-npm run lint
-npm run build
-```
-
 ## Troubleshooting
 
 - **CORS/API errors:** check that `CLIENT_URL` exactly matches the browser origin. Via Compose, open `http://localhost`; frontend API requests should use `/api/v1`.
