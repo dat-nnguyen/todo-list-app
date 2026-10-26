@@ -68,14 +68,16 @@ export function AddTaskModal({ onCreated, onClose, taskDate }) {
                         <span>Description <small>(Optional)</small></span>
                         <textarea name="description" placeholder="Add a few details" maxLength={2000} rows={3} />
                     </label>
-                    <label className="task-form-field">
-                        <span>Status</span>
-                        <StatusPicker name="status" id="add-task-status" defaultValue="pending" />
-                    </label>
-                    <label className="task-form-field">
-                        <span>Due time <small>(Optional)</small></span>
-                        <TimePicker name="dueTime" id="add-task-due-time" label="Choose due time" />
-                    </label>
+                    <div className="task-form-row">
+                        <label className="task-form-field">
+                            <span>Status</span>
+                            <StatusPicker name="status" id="add-task-status" defaultValue="pending" />
+                        </label>
+                        <label className="task-form-field">
+                            <span>Due time <small>(Optional)</small></span>
+                            <TimePicker name="dueTime" id="add-task-due-time" label="Choose due time" />
+                        </label>
+                    </div>
 
                     {errorMessage && <p className="add-task-error" role="alert">{errorMessage}</p>}
 
