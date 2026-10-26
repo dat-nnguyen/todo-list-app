@@ -40,10 +40,13 @@ todo-list-app/
 │   └── Dockerfile
 ├── front-end/
 │   ├── src/
-│   │   ├── components/          # Reusable UI components
-│   │   ├── features/            # Auth and task API/actions
-│   │   ├── hooks/               # React state/effect hooks
-│   │   ├── pages/               # Route pages
+│   │   ├── components/
+│   │   │   ├── molecules/       # Reusable UI groups and controls
+│   │   │   ├── organisms/       # Composed task/page regions
+│   │   │   └── templates/       # Page-level layout composition
+│   │   ├── features/            # Domain actions and API requests
+│   │   ├── hooks/               # Reusable React state/effect logic
+│   │   ├── pages/               # Route-level orchestration
 │   │   └── styles/              # CSS
 │   └── Dockerfile
 ├── proxy/
@@ -52,6 +55,19 @@ todo-list-app/
 ├── docker-compose.yml
 └── README.md
 ```
+
+## Frontend architecture and Atomic Design
+
+The frontend UI is organized using Brad Frost's Atomic Design vocabulary: **molecules, organisms, and templates**. This is a way to reason about the size and composition of interface components—not a requirement to create every possible layer or to move application logic into UI files. The project currently has no `atoms/` directory because the existing inputs, buttons, and labels do not yet need a separate shared abstraction. Add atoms when a small primitive has a real reuse or consistency benefit, rather than creating wrappers just to fill the hierarchy.
+
+### UI layers and responsibilities
+
+| Layer | Purpose | Components in this app |
+| --- | --- | --- |
+| `molecules/` | A small, reusable group of controls with a focused UI purpose. | `TaskFormFields` groups title, description, status, and due-time controls; `TaskModalShell` provides the shared dialog frame; `TaskListControls` composes sort and status controls; `StatusPicker` and `TimePicker` provide specialized controls; `SearchBar` is a standalone search/filter control. |
+| `organisms/` | Larger, meaningful sections composed from smaller components. | `AddTaskModal` and `EditTodoModal` are complete task dialogs; `TodoItem` is a task row; `TodoList` is the list region; `WeekPicker`, `DayOverview`, `ProgressSummary`, and `TopBar` are larger screen sections. |
+| `templates/` | Page-level layout composition, arranged without owning route-level data fetching. | `TodosTemplate` composes the top bar, sidebar, date controls, progress, task list, add dialog, and pagination. |
+| `pages/` | Route-level orchestration that connects hooks and feature actions to a template. | `TodosPage` reads route/navigation context, owns page-specific view state, derives visible tasks, and passes data/callbacks into `TodosTemplate`. |
 
 ## Run with Docker Compose
 
