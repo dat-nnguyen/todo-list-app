@@ -44,7 +44,7 @@ export function TopBar({ firstName }) {
         aria-controls="profile-menu"
         onClick={() => setIsMenuOpen((open) => !open)}
     >
-        {firstName || '...'}
+        {(firstName?.[0]?.toUpperCase()) || '…'}
     </button>
 
     {isMenuOpen && (

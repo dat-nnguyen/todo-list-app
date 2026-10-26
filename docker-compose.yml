@@ -6,3 +6,56 @@ services:
       - "11211:11211"
     command: ["memcached", "-m", "64", "-I", "2m"]
     restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: todo-list-backend
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=todo
+      - DATABASE_URL=postgresql://user:password@postgres:5432/todo
+      - CLIENT_URL=http://localhost
+      - MEMCACHED_SERVERS=memcached:11211
+    expose:
+      - "3000"
+    depends_on:
+      - postgres
+      - memcached
+    restart: unless-stopped
+
+  front-end:
+    build: ./front-end
+    container_name: todo-list-frontend
+    expose:
+      - "4173"
+    restart: unless-stopped
+
+  proxy:
+    build: ./proxy
+    container_name: todo-list-proxy
+    ports:
+      - "80:80"
+    depends_on:
+      - front-end
+      - backend
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: todo-list-postgres
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=todo
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
