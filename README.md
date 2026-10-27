@@ -69,6 +69,20 @@ The frontend UI is organized using Brad Frost's Atomic Design vocabulary: **mole
 | `templates/` | Page-level layout composition, arranged without owning route-level data fetching. | `TodosTemplate` composes the top bar, sidebar, date controls, progress, task list, add dialog, and pagination. |
 | `pages/` | Route-level orchestration that connects hooks and feature actions to a template. | `TodosPage` reads route/navigation context, owns page-specific view state, derives visible tasks, and passes data/callbacks into `TodosTemplate`. |
 
+## Screenshots
+
+### Sign in
+
+![Todo List sign-in screen](front-end/docs/screenshots/login.png)
+
+### Create an account
+
+![Todo List registration screen](front-end/docs/screenshots/register.png)
+
+### Tasks
+
+![Todo List tasks dashboard](front-end/docs/screenshots/todos.png)
+
 ## Run with Docker Compose
 
 ### Requirements
