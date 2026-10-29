@@ -64,6 +64,8 @@ export const listTodoQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(20),
     cursor: z.string().optional(),
     date: z.iso.date().optional(),
+    status: z.enum(['all', 'pending', 'in_progress', 'completed']).default('all'),
+    sort: z.enum(['createdAt', 'title', 'dueTime']).default('createdAt'),
 })
 
 export const todoIdParamSchema = z.object({

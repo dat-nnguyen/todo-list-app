@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { config } from '../../config/index.js';
 import { cache } from '../../utils/cache.js';
 import {
@@ -6,12 +6,13 @@ import {
     findByIdAndUserId,
     listByUserId,
     getTodoSummaryByUserId,
+    countFilteredTodos,
     updateTodo as updateTodoRepository,
     deleteTodo as deleteTodoRepository,
 } from './todos.repository.js';
 
 const CACHE_VERSION_PREFIX = 'todos:list-version:';
-const CACHE_LIST_PREFIX = 'todos:list:v1:';
+const CACHE_LIST_PREFIX = 'todos:list:v2:';
 const CACHE_VERSION_TTL_SECONDS = 60 * 60 * 24;
 
 async function getCacheVersion(userId) {
@@ -77,11 +78,11 @@ export async function getTodoService({ id, userId }) {
     return todo;
 }
 
-export async function getTodosService({ userId, limit, cursor, date }) {
+export async function getTodosService({ userId, limit, cursor, date, status = 'all', sort = 'createdAt' }) {
     const version = await getCacheVersion(userId);
-    const cursorKey = cursor ? `${cursor.createdAt}|${cursor.id}` : 'first';
+    const cursorKey = cursor ? createHash('sha256').update(JSON.stringify(cursor)).digest('hex') : 'first';
     const key = version
-        ? `${CACHE_LIST_PREFIX}${userId}:${date || 'all'}:${limit}:${cursorKey}:${version}`
+        ? `${CACHE_LIST_PREFIX}${userId}:${date || 'all'}:${status}:${sort}:${limit}:${cursorKey}:${version}`
         : null;
 
     if (key) {
@@ -93,11 +94,12 @@ export async function getTodosService({ userId, limit, cursor, date }) {
         }
     }
 
-    const [todos, summary] = await Promise.all([
-        listByUserId({ userId, limit: limit + 1, cursor, date }),
+    const [todos, summary, filteredCount] = await Promise.all([
+        listByUserId({ userId, limit: limit + 1, cursor, date, status, sort }),
         getTodoSummaryByUserId({ userId, date }),
+        countFilteredTodos({ userId, date, status }),
     ]);
-    const result = { todos, summary };
+    const result = { todos, summary, filteredCount };
 
     if (key) {
         try {

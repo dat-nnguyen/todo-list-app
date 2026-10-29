@@ -214,7 +214,7 @@ API prefix: `/api/v1`. Authenticated calls use the session cookie; browser fetch
 
 ### Tasks
 
-- `GET /api/v1/todos` — list tasks; supports date and cursor pagination query parameters.
+- `GET /api/v1/todos` — list tasks; supports `date`, `limit`, `cursor`, `status` (`all`, `pending`, `in_progress`, `completed`), and `sort` (`createdAt`, `title`, `dueTime`). Filtering and sorting run on the server before pagination. Title and due-time sorts are ascending, with missing due times last; creation time is descending.
 - `POST /api/v1/todos` — create a task.
 - `GET /api/v1/todos/:id` — fetch a task.
 - `PATCH /api/v1/todos/:id` — update a task.
@@ -222,11 +222,13 @@ API prefix: `/api/v1`. Authenticated calls use the session cookie; browser fetch
 
 Zod schemas validate request bodies, route parameters, and query parameters. See the backend route/schema/controller files for exact request and response formats.
 
+Task-list responses include `filteredCount` for page counts and a separate `summary` for completion progress across the selected day. Cursors are Base64url-encoded JSON and are scoped to the selected date, status, and sort. Changing these selections resets pagination. Successful task mutations refetch the current page, counts, and progress without changing pages, even when the current page becomes empty.
+
 ## Memcached behavior
 
 The task-list cache uses cache-aside:
 
-1. A key is scoped by user, date, page size, cursor, and a per-user version token.
+1. A key is scoped by user, date, status filter, sort order, page size, a hash of the cursor, and a per-user version token.
 2. On a hit, the backend returns the cached page and summary. On a miss, it queries PostgreSQL and caches the result for the configured TTL.
 3. Creating, updating, or deleting a task changes that user's version token; old list keys become unreachable without wildcard deletion.
 4. Cache errors fall back to PostgreSQL. The database remains authoritative.

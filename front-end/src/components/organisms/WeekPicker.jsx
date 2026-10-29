@@ -21,9 +21,9 @@ function addDays(date, days) {
     return nextDate
 }
 
-export function WeekPicker({ selectedDate, onSelectDate }) {
+export function WeekPicker({ selectedDate, onSelectDate, currentDateTime }) {
     const weekStart = getWeekStart(selectedDate)
-    const todayKey = toLocalDateKey(new Date())
+    const todayKey = toLocalDateKey(currentDateTime)
     const selectedDateKey = toLocalDateKey(selectedDate)
     const days = Array.from({ length: 7 }, (_, index) => {
         const date = addDays(weekStart, index)

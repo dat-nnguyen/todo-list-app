@@ -43,6 +43,7 @@ export function TodosTemplate({
                     <WeekPicker
                         selectedDate={selectedDate}
                         onSelectDate={onSelectDate}
+                        currentDateTime={currentDateTime}
                     />
                     <button className="add-task-button" type="button" onClick={onOpenAddTask}>
                         <span aria-hidden="true">＋</span> Add a task
@@ -73,7 +74,10 @@ export function TodosTemplate({
                             >
                                 <span aria-hidden="true">←</span> Previous
                             </button>
-                            <span>Page {pagination.currentPage + 1} of {pagination.totalPages}</span>
+                            <span>
+                                Page {pagination.currentPage + 1}
+                                {pagination.totalPages >= pagination.currentPage + 1 && ` of ${pagination.totalPages}`}
+                            </span>
                             <button
                                 type="button"
                                 onClick={pagination.onNext}

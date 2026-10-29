@@ -3,9 +3,10 @@ import { fetchTodosPage } from '../features/todos/fetchTodosPage.js'
 
 const PAGE_SIZE = 5
 
-export function useTodos({ currentCursor, reloadKey, navigate, date }) {
+export function useTodos({ currentCursor, reloadKey, navigate, date, status, sort }) {
     const [todos, setTodos] = useState([])
     const [summary, setSummary] = useState({ totalCount: 0, completedCount: 0 })
+    const [filteredCount, setFilteredCount] = useState(0)
     const [nextCursor, setNextCursor] = useState(null)
     const [isLoadingTodos, setIsLoadingTodos] = useState(true)
     const [todosError, setTodosError] = useState('')
@@ -25,12 +26,15 @@ export function useTodos({ currentCursor, reloadKey, navigate, date }) {
                     navigate,
                     limit: PAGE_SIZE,
                     date,
+                    status,
+                    sort,
                 })
 
                 if (!active || !data) return
                 setTodos(data.todos)
                 setNextCursor(data.nextCursor)
                 setSummary(data.summary)
+                setFilteredCount(data.filteredCount)
             } catch (error) {
                 if (active && error.name !== 'AbortError') {
                     setTodosError(error.message || 'Could not load todos.')
@@ -45,13 +49,12 @@ export function useTodos({ currentCursor, reloadKey, navigate, date }) {
             active = false
             controller.abort()
         }
-    }, [currentCursor, date, navigate, reloadKey])
+    }, [currentCursor, date, navigate, reloadKey, status, sort])
 
     return {
         todos,
-        setTodos,
         summary,
-        setSummary,
+        filteredCount,
         nextCursor,
         isLoadingTodos,
         todosError,

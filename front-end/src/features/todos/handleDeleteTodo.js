@@ -1,4 +1,4 @@
-export function createDeleteTodoHandler({ setTodos }) {
+export function createDeleteTodoHandler({ onSuccess }) {
     return async function handleDeleteTodo(todo) {
         if (!window.confirm(`Delete "${todo.title}"?`)) return
 
@@ -9,7 +9,7 @@ export function createDeleteTodoHandler({ setTodos }) {
             })
 
             if (!response.ok) throw new Error('Could not delete task.')
-            setTodos((currentTodos) => currentTodos.filter((item) => item.id !== todo.id))
+            onSuccess()
         } catch (error) {
             console.error(error.message || 'Could not delete task.')
         }

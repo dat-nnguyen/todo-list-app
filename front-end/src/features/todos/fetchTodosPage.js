@@ -1,5 +1,9 @@
-export async function fetchTodosPage({ cursor, signal, navigate, limit = 5, date }) {
-    const params = new URLSearchParams({ limit: String(limit) })
+export async function fetchTodosPage({
+    cursor, signal, navigate, limit = 5, date,
+    status = 'all',
+    sort = 'createdAt',
+}) {
+    const params = new URLSearchParams({ limit: String(limit), status, sort })
     if (cursor) params.set('cursor', cursor)
     if (date) params.set('date', date)
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export function TopBar({ firstName }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -31,9 +31,9 @@ export function TopBar({ firstName }) {
 
     return (
         <header className="topbar">
-            <a className="brand" href="/todos" aria-label="Todolist home">
-                <span>Todolist</span>
-            </a>
+            <Link to="/todos" className="brand" aria-label="Todolist home">
+                <span>DayList</span>
+            </Link>
             <div className="topbar-actions">
                <div className="profile-menu-wrapper">
     <button

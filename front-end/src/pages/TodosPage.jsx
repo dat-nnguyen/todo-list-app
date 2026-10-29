@@ -21,7 +21,7 @@ export default function TodosPage() {
     const [currentPage, setCurrentPage] = useState(0)
     const [pageCursors, setPageCursors] = useState([null])
     const [reloadKey, setReloadKey] = useState(0)
-    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [selectedDate, setSelectedDate] = useState(() => new Date())
     const [sortOrder, setSortOrder] = useState('createdAt')
     const [statusFilter, setStatusFilter] = useState('all')
     const currentCursor = pageCursors[currentPage]
@@ -30,27 +30,20 @@ export default function TodosPage() {
     const selectedDateKey = toLocalDateKey(selectedDate)
     const {
         todos,
-        setTodos,
         summary,
-        setSummary,
+        filteredCount,
         nextCursor,
         isLoadingTodos,
         todosError,
         pageSize,
-    } = useTodos({ currentCursor, reloadKey, navigate, date: selectedDateKey })
-    const totalPages = Math.ceil(summary.totalCount / pageSize)
-    const visibleTodos = todos
-        .filter((todo) => statusFilter === 'all' || todo.status === statusFilter)
-        .sort((first, second) => {
-            if (sortOrder === 'title') return first.title.localeCompare(second.title)
-            if (sortOrder === 'dueTime') return (first.dueTime || '99:99').localeCompare(second.dueTime || '99:99')
-            return 0
-        })
-    const handleToggleTodo = createToggleTodoHandler({ setTodos, setSummary })
-    const handleDeleteTodo = createDeleteTodoHandler({ setTodos })
+    } = useTodos({ currentCursor, reloadKey, navigate, date: selectedDateKey, status: statusFilter, sort: sortOrder })
+
+    const totalPages = Math.ceil(filteredCount / pageSize)
+    const handleToggleTodo = createToggleTodoHandler({ onSuccess: refreshAfterMutation })
+    const handleDeleteTodo = createDeleteTodoHandler({ onSuccess: refreshAfterMutation })
     async function handleSaveTodo(todo, updates) {
-        const updatedTodo = await updateTodo({ todo, updates })
-        setTodos((currentTodos) => currentTodos.map((item) => item.id === updatedTodo.id ? updatedTodo : item))
+        await updateTodo({ todo, updates })
+        refreshAfterMutation()
     }
     const currentDateTime = useCurrentDateTime()
 
@@ -68,17 +61,28 @@ export default function TodosPage() {
         setCurrentPage((page) => Math.max(0, page - 1))
     }
 
-
-
     function handleSelectDate(date) {
         setSelectedDate(date)
         setPageCursors([null])
         setCurrentPage(0)
     }
 
-    function handleTaskCreated() {
+    function resetPagination() {
         setPageCursors([null])
         setCurrentPage(0)
+    }
+
+    function handleSortChange(value) {
+        setSortOrder(value)
+        resetPagination()
+    }
+
+    function handleStatusFilterChange(value) {
+        setStatusFilter(value)
+        resetPagination()
+    }
+
+    function refreshAfterMutation() {
         setReloadKey((key) => key + 1)
     }
 
@@ -91,16 +95,16 @@ export default function TodosPage() {
             selectedDate={selectedDate}
             selectedDateKey={selectedDateKey}
             onSelectDate={handleSelectDate}
-            onTaskCreated={handleTaskCreated}
+            onTaskCreated={refreshAfterMutation}
             currentDateTime={currentDateTime}
             summary={summary}
             isLoadingTodos={isLoadingTodos}
             todosError={todosError}
-            todos={visibleTodos}
+            todos={todos}
             sortOrder={sortOrder}
-            onSortChange={setSortOrder}
+            onSortChange={handleSortChange}
             statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
+            onStatusFilterChange={handleStatusFilterChange}
             onToggleTodo={handleToggleTodo}
             onSaveTodo={handleSaveTodo}
             onDeleteTodo={handleDeleteTodo}
